@@ -2,8 +2,8 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    service: udaconnect-api
-  name: udaconnect-api
+    service: udaconnect-api-connections
+  name: udaconnect-api-connections
 spec:
   ports:
   - name: "5000"
@@ -11,28 +11,228 @@ spec:
     targetPort: 5000
     nodePort: 30001
   selector:
-    service: udaconnect-api
+    service: udaconnect-api-connections
   type: NodePort
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    service: udaconnect-api
-  name: udaconnect-api
+    service: udaconnect-api-connections
+  name: udaconnect-api-connections
 spec:
   replicas: 1
   selector:
     matchLabels:
-      service: udaconnect-api
+      service: udaconnect-api-connections
   template:
     metadata:
       labels:
-        service: udaconnect-api
+        service: udaconnect-api-connections
     spec:
       containers:
-      - image: udacity/nd064-udaconnect-api:latest
-        name: udaconnect-api
+      - image: akbayati/udaconnect-api-connections:latest
+        name: udaconnect-api-connections
+        imagePullPolicy: Always
+        env:
+        - name: DB_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: db-env
+              key: DB_USERNAME
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: DB_PASSWORD
+        - name: DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: db-env
+              key: DB_NAME
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: db-env
+              key: DB_HOST
+        - name: DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: db-env
+              key: DB_PORT
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    service: udaconnect-api-persons
+  name: udaconnect-api-persons
+spec:
+  ports:
+  - name: "5000"
+    port: 5000
+    targetPort: 5000
+    nodePort: 30002
+  selector:
+    service: udaconnect-api-persons
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: udaconnect-api-persons
+  name: udaconnect-api-persons
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: udaconnect-api-persons
+  template:
+    metadata:
+      labels:
+        service: udaconnect-api-persons
+    spec:
+      containers:
+      - image: akbayati/udaconnect-api-persons:latest
+        name: udaconnect-api-persons
+        imagePullPolicy: Always
+        env:
+        - name: DB_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: db-env
+              key: DB_USERNAME
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: DB_PASSWORD
+        - name: DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: db-env
+              key: DB_NAME
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: db-env
+              key: DB_HOST
+        - name: DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: db-env
+              key: DB_PORT
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    service: udaconnect-api-locations
+  name: udaconnect-api-locations
+spec:
+  ports:
+  - name: "5000"
+    port: 5000
+    targetPort: 5000
+    nodePort: 30003
+  - name: "5005"
+    port: 5005
+    targetPort: 5005
+    nodePort: 30005
+  selector:
+    service: udaconnect-api-locations
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: udaconnect-api-locations
+  name: udaconnect-api-locations
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: udaconnect-api-locations
+  template:
+    metadata:
+      labels:
+        service: udaconnect-api-locations
+    spec:
+      containers:
+      - image: akbayati/udaconnect-api-locations:latest
+        name: udaconnect-api-locations
+        imagePullPolicy: Always
+        env:
+        - name: DB_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: db-env
+              key: DB_USERNAME
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: DB_PASSWORD
+        - name: DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: db-env
+              key: DB_NAME
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: db-env
+              key: DB_HOST
+        - name: DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: db-env
+              key: DB_PORT
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    service: udaconnect-kafka
+  name: udaconnect-kafka
+spec:
+  ports:
+  - name: "9092"
+    port: 9092
+    targetPort: 9092
+    nodePort: 30006
+  - name: zookeeper-port
+    port: 2181
+    nodePort: 30004
+    targetPort: 2181
+  selector:
+    service: udaconnect-kafka
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: udaconnect-kafka
+  name: udaconnect-kafka
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: udaconnect-kafka
+  template:
+    metadata:
+      labels:
+        service: udaconnect-kafka
+    spec:
+      containers:
+      - image: akbayati/udaconnect-kafka:latest
+        name: udaconnect-kafka
         imagePullPolicy: Always
         env:
         - name: DB_USERNAME
