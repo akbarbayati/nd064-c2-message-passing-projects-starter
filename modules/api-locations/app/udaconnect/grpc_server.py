@@ -17,8 +17,10 @@ logger = logging.getLogger("udaconnect-api")
 
 TOPIC_NAME = 'location'
 KAFKA_URL = 'udaconnect-kafka:9092'
-msg_q = KafkaProducer(bootstrap_servers=KAFKA_URL)
-in_msg_q = KafkaConsumer(TOPIC_NAME, bootstrap_servers=KAFKA_URL)
+msg_q = KafkaProducer(bootstrap_servers=KAFKA_URL,
+                      value_serializer=lambda v: json.dumps(v).encode('utf-8'))
+in_msg_q = KafkaConsumer(TOPIC_NAME, bootstrap_servers=KAFKA_URL,
+                         value_deserializer=lambda x: json.loads(x.decode('utf-8')))
 
 class LocationServicer(location_pb2_grpc.LocationServiceServicer):
    
@@ -31,10 +33,7 @@ class LocationServicer(location_pb2_grpc.LocationServiceServicer):
             "latitude": request.latitude,
             "creation_time": request.creation_time,
         }
-        msg_q.send(TOPIC_NAME, json.dumps(request_value, indent=2).encode('utf-8'))
-        msg_q.flush()
-        logger.error('XXXX')
-        logger.error(request_value)
+        msg_q.send(TOPIC_NAME,request_value)
         return location_pb2.Location(**request_value)
 
     def Get(self, request, context):
@@ -58,10 +57,8 @@ class GrpcServer:
     def persist_locations(self):
         global in_msg_q
         for message in in_msg_q:
-            logger.error(message)
             with app.app_context():
-                LocationService.create(json.load(message.value))
-        logger.error('YYYY')
+                LocationService.create(message.value)
 
     def start(self):
         logger.info("Server starting on port 5005...")
