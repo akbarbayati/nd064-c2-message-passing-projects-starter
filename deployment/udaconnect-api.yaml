@@ -134,9 +134,9 @@ metadata:
   name: udaconnect-api-locations
 spec:
   ports:
-  - name: "5000"
-    port: 5000
-    targetPort: 5000
+  - name: "9092"
+    port: 9092
+    targetPort: 9092
     nodePort: 30003
   - name: "5005"
     port: 5005
@@ -165,6 +165,43 @@ spec:
       containers:
       - image: akbayati/udaconnect-api-locations:latest
         name: udaconnect-api-locations
+        imagePullPolicy: Always
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    service: udaconnect-location-consumer
+  name: udaconnect-location-consumer
+spec:
+  ports:
+  - name: "9092"
+    port: 9092
+    targetPort: 9092
+  selector:
+      service: udaconnect-location-consumer
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: udaconnect-location-consumer
+  name: udaconnect-location-consumer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: udaconnect-location-consumer
+  template:
+    metadata:
+      labels:
+        service: udaconnect-location-consumer
+    spec:
+      containers:
+      - image: akbayati/udaconnect-location-consumer:latest
+        name: udaconnect-location-consumer
         imagePullPolicy: Always
         env:
         - name: DB_USERNAME
@@ -234,30 +271,4 @@ spec:
       - image: akbayati/udaconnect-kafka:latest
         name: udaconnect-kafka
         imagePullPolicy: Always
-        env:
-        - name: DB_USERNAME
-          valueFrom:
-            configMapKeyRef:
-              name: db-env
-              key: DB_USERNAME
-        - name: DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: db-secret
-              key: DB_PASSWORD
-        - name: DB_NAME
-          valueFrom:
-            configMapKeyRef:
-              name: db-env
-              key: DB_NAME
-        - name: DB_HOST
-          valueFrom:
-            configMapKeyRef:
-              name: db-env
-              key: DB_HOST
-        - name: DB_PORT
-          valueFrom:
-            configMapKeyRef:
-              name: db-env
-              key: DB_PORT
       restartPolicy: Always

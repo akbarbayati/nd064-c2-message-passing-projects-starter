@@ -1,20 +1,30 @@
 import logging
 from typing import Dict
-
-from app import db
-from app.udaconnect.models import Location
-from app.udaconnect.schemas import LocationSchema
 from geoalchemy2.functions import ST_Point
 
-logging.basicConfig(level=logging.WARNING)
-logger = logging.getLogger("udaconnect-api")
+from models import Location
+from schemas import LocationSchema
 
+import os
+from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session, sessionmaker
+
+DB_USERNAME = os.environ["DB_USERNAME"]
+DB_PASSWORD = os.environ["DB_PASSWORD"]
+DB_HOST = os.environ["DB_HOST"]
+DB_PORT = os.environ["DB_PORT"]
+DB_NAME = os.environ["DB_NAME"]
+
+engine = create_engine(f"postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}", echo=True)
+session = scoped_session(sessionmaker(bind=engine))
+
+logger = logging.getLogger("udaconnect-api")
 
 class LocationService:
     @staticmethod
     def retrieve(location_id) -> Location:
         location, coord_text = (
-            db.session.query(Location, Location.coordinate.ST_AsText())
+            session.query(Location, Location.coordinate.ST_AsText())
             .filter(Location.id == location_id)
             .one()
         )
@@ -34,7 +44,7 @@ class LocationService:
         new_location.person_id = location["person_id"]
         new_location.creation_time = location["creation_time"]
         new_location.coordinate = ST_Point(location["latitude"], location["longitude"])
-        db.session.add(new_location)
-        db.session.commit()
+        session.add(new_location)
+        session.commit()
 
         return new_location

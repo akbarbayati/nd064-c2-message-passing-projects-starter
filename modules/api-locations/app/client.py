@@ -18,7 +18,3 @@ location = location_pb2.Location(
 
 response = stub.Create(location)
 print(response)
-
-location_id = location_pb2.LocationId(id=response.id)
-response2 = stub.Get(location_id)
-print(response2)

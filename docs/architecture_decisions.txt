@@ -1,0 +1,7 @@
+The monolith backend application is divided into four services, connections, persons, locations, and location consumer. 
+The connections service is used by the web-based frontend application and I thought REST is the best option to communicate with it.
+The use cases of the persons service are to add/query persons. The frontend application uses it to get the list of persons, which again the best way to communicate is via Rest. 
+Also, this service is used by the connections service to follow the separation of concerns in design.  
+The locations service is responsible for to receive locations of each person. I assumed that this service could be used by devices like smartphones, and the rate of adding new locations could be high.
+So gRPC is used for communication to reduce the latency. Also, a Kafka message queue is used to improve performance and to be more fault tolerant.
+The last service, is location consumer, which receives new messages from Kafka message queue and persists them to database.

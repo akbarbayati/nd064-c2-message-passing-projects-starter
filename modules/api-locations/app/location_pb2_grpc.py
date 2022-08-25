@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import app.udaconnect.location_pb2 as location__pb2
+import location_pb2 as location__pb2
 
 
 class LocationServiceStub(object):
@@ -19,11 +19,6 @@ class LocationServiceStub(object):
                 request_serializer=location__pb2.Location.SerializeToString,
                 response_deserializer=location__pb2.Location.FromString,
                 )
-        self.Get = channel.unary_unary(
-                '/LocationService/Get',
-                request_serializer=location__pb2.LocationId.SerializeToString,
-                response_deserializer=location__pb2.Location.FromString,
-                )
 
 
 class LocationServiceServicer(object):
@@ -35,23 +30,12 @@ class LocationServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def Get(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
 
 def add_LocationServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'Create': grpc.unary_unary_rpc_method_handler(
                     servicer.Create,
                     request_deserializer=location__pb2.Location.FromString,
-                    response_serializer=location__pb2.Location.SerializeToString,
-            ),
-            'Get': grpc.unary_unary_rpc_method_handler(
-                    servicer.Get,
-                    request_deserializer=location__pb2.LocationId.FromString,
                     response_serializer=location__pb2.Location.SerializeToString,
             ),
     }
@@ -77,23 +61,6 @@ class LocationService(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/LocationService/Create',
             location__pb2.Location.SerializeToString,
-            location__pb2.Location.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def Get(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/LocationService/Get',
-            location__pb2.LocationId.SerializeToString,
             location__pb2.Location.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

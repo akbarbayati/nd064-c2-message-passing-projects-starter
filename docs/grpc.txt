@@ -1,0 +1,33 @@
+The gRPC endpoint provides a service for adding new location of a person.
+The format of defined message and service is as the following:
+
+message Location {
+  int32 id = 1;
+  int32 person_id = 2;
+  string longitude = 3;
+  string latitude = 4;
+  string creation_time = 5;
+}
+
+service LocationService {
+    rpc Create(Location) returns (Location);
+}
+
+The following code snipet shows how to interact with location service:
+
+import grpc
+import location_pb2
+import location_pb2_grpc
+
+channel = grpc.insecure_channel("localhost:30005")
+stub = location_pb2_grpc.LocationServiceStub(channel)
+
+location = location_pb2.Location(
+    id=1,
+    person_id=5,
+    latitude="-122.290524",
+    longitude="37.553441",
+    creation_time="1970-01-01T10:10:10Z"
+)
+
+response = stub.Create(location)

@@ -8,11 +8,6 @@ message Location {
   string creation_time = 5;
 }
 
-message LocationId {
-  int32 id = 1;
-}
-
 service LocationService {
     rpc Create(Location) returns (Location);
-    rpc Get(LocationId) returns (Location);
 }
